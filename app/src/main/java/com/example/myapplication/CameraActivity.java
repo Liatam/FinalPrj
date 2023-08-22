@@ -99,42 +99,43 @@ import androidx.navigation.fragment.NavHostFragment;
 import java.io.ByteArrayOutputStream;
 public class CameraActivity extends AppCompatActivity {
 
-    private static final OkHttpClient client = new OkHttpClient.Builder()
-//            .connectTimeout(50, TimeUnit.SECONDS)
-//            .readTimeout(50, TimeUnit.SECONDS)
-            .build();
-    public static void sendImageToServer(String base64Image) {
-        String url = "https://10.100.102.8:5000/imageToId";
-        MediaType mediaType = MediaType.parse("image/png"); // Or image/jpeg, depending on the image format
-        RequestBody requestBody = RequestBody.create(base64Image, mediaType);
-        Request request = new Request.Builder()
-                .url(url)
-                .post(requestBody)
-                .build();
-        try (Response response = client.newCall(request).execute()) {
-            System.out.println("in try");
-            if (response.isSuccessful()) {
-                assert response.body() != null;
-                String responseString = response.body().string();
-                System.out.println("*******");
-                System.out.println(responseString);
+//    private static final OkHttpClient client = new OkHttpClient.Builder()
+////            .connectTimeout(50, TimeUnit.SECONDS)
+////            .readTimeout(50, TimeUnit.SECONDS)
+//            .build();
 
-                //לפתוח עוד אקטיבי ולראות את התשובה אחרי שחוזרת תגובה מהשרת על התמונה ששלחנו
-//                // Start the WordListActivity and pass the decoded response as an extra
-//                Intent intent = new Intent(context, WordListActivity.class);
-//                intent.putExtra("wordList", decodedResponse);
-//                context.startActivity(intent);
-
-            } else {
-                System.out.println("Unsuccessful response: " + response.message());
-                // Handle unsuccessful response here (e.g., log or show an error message)
-                Log.e("ServerConnectBase64", "Unsuccessful response: " + response.code() + " " + response.message());
-            }
-        } catch (IOException e) {
-            System.out.println("Exception caught: " + e.getMessage());
-            // Handle IO Exception here (e.g., log or show an error message)
-            e.printStackTrace();
-        }
-    }
+//    public static void sendImageToServer(String base64Image) {
+//        String url = "https://10.100.102.8:5000/imageToId/<base64Image>";
+//        MediaType mediaType = MediaType.parse("image/png"); // Or image/jpeg, depending on the image format
+//        RequestBody requestBody = RequestBody.create(base64Image, mediaType);
+//        Request request = new Request.Builder()
+//                .url(url)
+//                .post(requestBody)
+//                .build();
+//        try (Response response = client.newCall(request).execute()) {
+//            System.out.println("in try");
+//            if (response.isSuccessful()) {
+//                assert response.body() != null;
+//                String responseString = response.body().string();
+//                System.out.println("*******");
+//                System.out.println(responseString);
+//
+//                //לפתוח עוד אקטיבי ולראות את התשובה אחרי שחוזרת תגובה מהשרת על התמונה ששלחנו
+////                // Start the WordListActivity and pass the decoded response as an extra
+////                Intent intent = new Intent(context, WordListActivity.class);
+////                intent.putExtra("wordList", decodedResponse);
+////                context.startActivity(intent);
+//
+//            } else {
+//                System.out.println("Unsuccessful response: " + response.message());
+//                // Handle unsuccessful response here (e.g., log or show an error message)
+//                Log.e("ServerConnectBase64", "Unsuccessful response: " + response.code() + " " + response.message());
+//            }
+//        } catch (IOException e) {
+//            System.out.println("Exception caught: " + e.getMessage());
+//            // Handle IO Exception here (e.g., log or show an error message)
+//            e.printStackTrace();
+//        }
+//    }
 }
 

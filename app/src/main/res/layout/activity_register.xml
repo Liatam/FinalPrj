@@ -48,6 +48,15 @@
         android:hint="Phone" />
 
     <Button
+        android:id="@+id/registerSubmit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonFirst"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="70dp"
+        android:text="Submit" />
+
+    <Button
         android:id="@+id/buttonFirst"
         android:layout_width="120dp"
         android:layout_height="120dp"

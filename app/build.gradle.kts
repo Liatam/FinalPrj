@@ -46,8 +46,10 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation ("androidx.camera:camera-core:1.0.0")
     implementation ("androidx.camera:camera-camera2:1.0.0")
-    implementation ("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation ("com.squareup.okhttp3:okhttp:4.5.0")
     implementation ("com.google.code.gson:gson:2.8.8")
+    implementation ("androidx.camera:camera-camera2:1.1.0")
+
 
 
 }
