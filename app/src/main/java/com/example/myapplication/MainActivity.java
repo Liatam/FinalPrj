@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         boolean isUserRegistered = isUserRegistered();
 
         if (isUserRegistered) {
+            System.out.println("in main registered suc///");
             // User is registered, show welcome text and "Rec Me!" button
             welcomeText.setText("Hello User!");
             welcomeText.setVisibility(View.VISIBLE);
@@ -57,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
             registerButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    checknew();
                     // Start the RegisterActivity when the button is clicked
                     Intent registerIntent = new Intent(MainActivity.this, RegisterActivity.class);
                     startActivity(registerIntent);
@@ -94,37 +94,5 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void checknew(){
-        System.out.println("in check new");
-        // creating a client
-        OkHttpClient okHttpClient = new OkHttpClient();
-
-        // building a request
-        Request request = new Request.Builder().url("http://10.100.102.8:5000/check").build();
-
-        // making call asynchronously
-        okHttpClient.newCall(request).enqueue(new Callback() {
-            @Override
-            // called if server is unreachable
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "server down", Toast.LENGTH_SHORT).show();
-                        System.out.println("error connecting to the server");
-                    }
-                });
-            }
-
-            @Override
-            // called if we get a
-            // response from the server
-            public void onResponse(
-                    @NotNull Call call,
-                    @NotNull Response response)
-                    throws IOException {System.out.println(response.body().string()+"*******");
-            }
-        });
-    }
     }
 
