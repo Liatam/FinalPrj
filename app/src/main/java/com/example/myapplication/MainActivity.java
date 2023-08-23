@@ -39,18 +39,20 @@ public class MainActivity extends AppCompatActivity {
 
         // Find the views
         TextView welcomeText = findViewById(R.id.welcomeText);
-        Button recMeButton = findViewById(R.id.recMeButton);
         Button registerButton = findViewById(R.id.registerButton);
 
         // Check if the user is registered
         boolean isUserRegistered = isUserRegistered();
 
         if (isUserRegistered) {
-            System.out.println("in main registered suc///");
-            // User is registered, show welcome text and "Rec Me!" button
-            welcomeText.setText("Hello User!");
-            welcomeText.setVisibility(View.VISIBLE);
-            recMeButton.setVisibility(View.VISIBLE);
+            Intent cameraIntent = new Intent(MainActivity.this, RecMe.class);
+            startActivity(cameraIntent);
+//            System.out.println("in main registered suc///");
+//            // User is registered, show welcome text and "Rec Me!" button
+//            welcomeText.setText("Hello User!");
+//            welcomeText.setVisibility(View.VISIBLE);
+//            recMeButton.setVisibility(View.VISIBLE);
+
         } else {
             // User is not registered, show "Register" button
             registerButton.setVisibility(View.VISIBLE);
@@ -64,6 +66,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+
+//        recMeButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                // Start the CameraActivity when the button is clicked
+//
+//            }
+//        });
     }
 
     // Method to check if the user is registered (simplified using SharedPreferences)

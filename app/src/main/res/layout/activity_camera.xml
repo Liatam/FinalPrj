@@ -58,7 +58,7 @@
         android:layout_below="@id/captureButton"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
-        android:visibility="invisible" />
+         />
 
     <Button
         android:id="@+id/finishButton"

@@ -22,6 +22,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.gson.Gson;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -63,10 +65,12 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (uploadedPictureCount == 5) {
+                    saveIdVector(idVectors);
                     setRegisteredStatus(true);
                     // Navigate back to the main activity
                     Intent intent = new Intent(CameraActivity.this, MainActivity.class);
                     startActivity(intent);
+                    uploadedPictureCount = 0;
                     finish(); // Finish the current activity
                 } else {
                     // Show a toast message
@@ -106,9 +110,28 @@ public class CameraActivity extends AppCompatActivity {
                     System.out.println("Permission already granted");
                     capturePhoto();
                 }
+
             }
         });
 
+    }
+    private void saveIdVector(List<Float> idVectors) {
+        SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(idVectors);
+        editor.putString("idVector", json);
+        editor.apply();
+        String savedUserJson = sharedPreferences.getString("user", null);
+        if (savedUserJson != null) {
+            // Deserialize the User object from JSON (or any other format)
+            User savedUser = deserializeUser(savedUserJson);
+            System.out.println("Saved idVector " + savedUser.getFirstName());
+        }
+    }
+    private User deserializeUser(String userJson) {
+        Gson gson = new Gson();
+        return gson.fromJson(userJson, User.class);
     }
     public void setRegisteredStatus(boolean isRegistered) {
         SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
@@ -138,7 +161,7 @@ public class CameraActivity extends AppCompatActivity {
 
                     System.out.println("Image size: " + byteArray.length);
 
-                    URL url = new URL("http://10.100.102.8:5000/imageToId");
+                    URL url = new URL("http://10.100.102.8:5000/register");
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setDoOutput(true);
@@ -168,27 +191,31 @@ public class CameraActivity extends AppCompatActivity {
                             if (jsonResponse.has("id_vector")) {
                                 System.out.println("in if has id_vector");
                                 JSONArray idVectorArray = jsonResponse.getJSONArray("id_vector");
-                                System.out.println("in if idVectors not null");
                                 // Compute the average between idVectors and the response vector
                                 List<Float> averageVector = new ArrayList<>();
                                 System.out.println("idVectorArray" + idVectorArray);
                                 //first image
                                 if(idVectors.size()==0)
                                 {
+                                    System.out.println("in if first image");
+                                    System.out.println("idVectorArray.length()"+idVectorArray.length());
                                     for (int i = 0; i < idVectorArray.length(); i++) {
                                         Float idVector = Float.valueOf(idVectorArray.getString(i));
                                         idVectors.add(idVector);
                                     }
                                 }
                                 else {
+                                    System.out.println("in else make avarage vec");
                                     for (int i = 0; i < idVectorArray.length(); i++) {
                                         float oldValue = idVectors.get(i);
                                         float responseValue = (float) idVectorArray.getDouble(i);
                                         averageVector.add((oldValue + responseValue) / 2);
                                     }
+                                    idVectors = averageVector;
+                                    System.out.println("averageVector: " + averageVector);
                                 }
                                 // Update idVectors with the average vector
-                                idVectors = averageVector;
+
                                 System.out.println("Updated idVectors: " + idVectors);
 
                                 // Increment the uploaded picture count
@@ -196,8 +223,6 @@ public class CameraActivity extends AppCompatActivity {
 
                                 // Update the progress bar
                                 updateProgressBar();
-
-
                             }
                         if(jsonResponse.has("No face")) {
                             System.out.println("No face found. Try again!");
@@ -224,6 +249,7 @@ public class CameraActivity extends AppCompatActivity {
 
     }
     private void updateProgressBar() {
+        System.out.println("in Update progress bar");
         // Calculate the progress as a percentage
         int progress = (uploadedPictureCount * 100) / 5;
 
@@ -231,17 +257,14 @@ public class CameraActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                System.out.println("in run");
                 progressBar.setVisibility(View.VISIBLE);
                 progressBar.setProgress(progress);
-
+                System.out.println("uploadedPictureCount: " + uploadedPictureCount);
                 // Check if all pictures are uploaded
-                if (uploadedPictureCount == 5) {
-                    progressBar.setVisibility(View.INVISIBLE);
-                    // Reset the uploaded picture count for the next batch of uploads
-                   // uploadedPictureCount = 0;
-                }
             }
         });
     }
+
 
 }

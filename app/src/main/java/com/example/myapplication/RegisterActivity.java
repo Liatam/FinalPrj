@@ -20,7 +20,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText emailEditText;
     private EditText phoneEditText;
 
-    public void registerUser() {
+    public boolean registerUser() {
         String firstName = firstNameEditText.getText().toString();
         String lastName = lastNameEditText.getText().toString();
         String email = emailEditText.getText().toString();
@@ -28,9 +28,15 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Create a User object and save it to SharedPreferences
         User user = new User(firstName, lastName, email, phone);
-        saveUser(user);
-        setRegisteredStatus(true);
+        if(validation(user)) {
+            saveUser(user);
+            setRegisteredStatus(true);
+            printSavedUserData();
+            return true;
+        }
+        System.out.println("false register user.");
         printSavedUserData();
+        return false;
         // Optionay, you can also redirect the user to a login screen
         //        // after successful registration.ll
     }
@@ -100,21 +106,52 @@ public class RegisterActivity extends AppCompatActivity {
         registerSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                registerUser();
-                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                startActivity(intent);
+                if(registerUser()) {
+                    Intent intent = new Intent(RegisterActivity.this, CameraActivity.class);
+                    startActivity(intent);
+                }
             }
         });
-
-        Button captureButton = findViewById(R.id.buttonFirst);
-        captureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                openCamera();
-                Intent intent = new Intent(RegisterActivity.this, CameraActivity.class);
-                startActivity(intent);
-            }
-        });
-
     }
+        private boolean validation(User user){
+            // Perform validation checks
+            if (user.getFirstName().isEmpty()) {
+                firstNameEditText.setError("First Name is required");
+                firstNameEditText.requestFocus();
+                return false;
+            }
+
+            if (user.getLastName().isEmpty()) {
+                lastNameEditText.setError("Last Name is required");
+                lastNameEditText.requestFocus();
+                return false;
+            }
+
+            if (user.getEmail().isEmpty()) {
+                emailEditText.setError("Email is required");
+                emailEditText.requestFocus();
+                return false;
+            } else if (!isValidEmail(user.getEmail())) {
+                emailEditText.setError("Invalid email address");
+                emailEditText.requestFocus();
+                return false;
+            }
+
+            if (user.getPhone().isEmpty()) {
+                phoneEditText.setError("Phone is required");
+                phoneEditText.requestFocus();
+                return false;
+            } else if (!user.getPhone().matches("^[0-9]{10}$")) {
+                phoneEditText.setError("Invalid phone number");
+                phoneEditText.requestFocus();
+                return false;
+            }
+            return true;
+        }
+    private boolean isValidEmail(String email) {
+        // You can implement your email validation logic here.
+        // For a basic check, you can use a regular expression.
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
 }
