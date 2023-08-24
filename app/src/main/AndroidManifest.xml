@@ -52,7 +52,10 @@
             android:label="CameraActivity">
         </activity>
 
-
+        <activity
+            android:name=".RecMeActivity"
+            android:label="RecMeActivity">
+        </activity>
 
 
 

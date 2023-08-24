@@ -27,10 +27,9 @@ public class RegisterActivity extends AppCompatActivity {
         String phone = phoneEditText.getText().toString();
 
         // Create a User object and save it to SharedPreferences
-        User user = new User(firstName, lastName, email, phone);
+        User user = new User(firstName, lastName, email, phone, false, null);
         if(validation(user)) {
             saveUser(user);
-            setRegisteredStatus(true);
             printSavedUserData();
             return true;
         }
@@ -42,16 +41,8 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
 
-    public void setRegisteredStatus(boolean isRegistered) {
-        SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean("isRegistered", isRegistered);
-        editor.apply();
-        System.out.println("User registration status updated to: " + isRegistered);
-    }
-
     private void saveUser(User user) {
-        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         String userJson = serializeUser(user);
         editor.putString("user", userJson);
@@ -65,7 +56,8 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void printSavedUserData() {
-        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        System.out.println("*****in print user data in register");
+        SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         String savedUserJson = sharedPreferences.getString("user", null);
 
         if (savedUserJson != null) {

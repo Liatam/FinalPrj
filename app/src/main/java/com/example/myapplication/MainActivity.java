@@ -10,26 +10,6 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-
-
-import android.os.Bundle;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -43,9 +23,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Check if the user is registered
         boolean isUserRegistered = isUserRegistered();
-
+        System.out.println("isUserRegistered: " + isUserRegistered);
         if (isUserRegistered) {
-            Intent cameraIntent = new Intent(MainActivity.this, RecMe.class);
+            Intent cameraIntent = new Intent(MainActivity.this, RecMeActivity.class);
             startActivity(cameraIntent);
 //            System.out.println("in main registered suc///");
 //            // User is registered, show welcome text and "Rec Me!" button

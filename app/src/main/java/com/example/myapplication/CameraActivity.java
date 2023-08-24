@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -45,7 +47,6 @@ public class CameraActivity extends AppCompatActivity {
     private Bitmap capturedImage;
     private ActivityResultLauncher<Intent> cameraLauncher;
     private static final int CAMERA_REQUEST_CODE = 1;
-    private List<Float> idVectors = new ArrayList<>();
     private ProgressBar progressBar;
     private int uploadedPictureCount = 0;
     private Button finishButton;
@@ -65,9 +66,10 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (uploadedPictureCount == 5) {
-                    saveIdVector(idVectors);
+                    //saveIdVector(idVectors);
                     setRegisteredStatus(true);
                     // Navigate back to the main activity
+                    printSavedUserData();
                     Intent intent = new Intent(CameraActivity.this, MainActivity.class);
                     startActivity(intent);
                     uploadedPictureCount = 0;
@@ -116,17 +118,20 @@ public class CameraActivity extends AppCompatActivity {
 
     }
     private void saveIdVector(List<Float> idVectors) {
+        System.out.println("in dave before idVector: "+idVectors);
         SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         Gson gson = new Gson();
         String json = gson.toJson(idVectors);
+        System.out.println("in dave after idVector: "+json);
         editor.putString("idVector", json);
         editor.apply();
-        String savedUserJson = sharedPreferences.getString("user", null);
-        if (savedUserJson != null) {
-            // Deserialize the User object from JSON (or any other format)
-            User savedUser = deserializeUser(savedUserJson);
-            System.out.println("Saved idVector " + savedUser.getFirstName());
+        String savedUserJson = sharedPreferences.getString("idVector", null);
+        String savedIdVectorJson = sharedPreferences.getString("idVector", null);
+        if (savedIdVectorJson != null) {
+            // Deserialize the idVector list from JSON
+            List<Float> savedIdVector = gson.fromJson(savedIdVectorJson, new TypeToken<List<Float>>() {}.getType());
+            System.out.println("Saved idVector: " + savedIdVector);
         }
     }
     private User deserializeUser(String userJson) {
@@ -136,9 +141,10 @@ public class CameraActivity extends AppCompatActivity {
     public void setRegisteredStatus(boolean isRegistered) {
         SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
+        System.out.println("**** in finish before set User registration status: "+sharedPreferences.getString("isRegistered", null));
         editor.putBoolean("isRegistered", isRegistered);
         editor.apply();
-        System.out.println("User registration status updated to: " + isRegistered);
+        System.out.println("*****User registration IN finish status updated to: " + isRegistered);
     }
     private void capturePhoto() {
         System.out.println("Capture photo");
@@ -195,28 +201,30 @@ public class CameraActivity extends AppCompatActivity {
                                 List<Float> averageVector = new ArrayList<>();
                                 System.out.println("idVectorArray" + idVectorArray);
                                 //first image
-                                if(idVectors.size()==0)
+                                if(getIdVecFromSP()==null)
                                 {
                                     System.out.println("in if first image");
                                     System.out.println("idVectorArray.length()"+idVectorArray.length());
+                                    List<Float> vector=new ArrayList<>();
                                     for (int i = 0; i < idVectorArray.length(); i++) {
-                                        Float idVector = Float.valueOf(idVectorArray.getString(i));
-                                        idVectors.add(idVector);
+                                        Float value = Float.valueOf(idVectorArray.getString(i));
+                                        vector.add(value);
                                     }
+                                    saveIdVector(vector);
                                 }
                                 else {
                                     System.out.println("in else make avarage vec");
                                     for (int i = 0; i < idVectorArray.length(); i++) {
-                                        float oldValue = idVectors.get(i);
+                                        float oldValue = getIdVecFromSP().get(i);
                                         float responseValue = (float) idVectorArray.getDouble(i);
                                         averageVector.add((oldValue + responseValue) / 2);
                                     }
-                                    idVectors = averageVector;
+                                    saveIdVector(averageVector);
                                     System.out.println("averageVector: " + averageVector);
                                 }
                                 // Update idVectors with the average vector
 
-                                System.out.println("Updated idVectors: " + idVectors);
+                                System.out.println("Updated idVectors: " + getIdVecFromSP());
 
                                 // Increment the uploaded picture count
                                 uploadedPictureCount++;
@@ -264,6 +272,51 @@ public class CameraActivity extends AppCompatActivity {
                 // Check if all pictures are uploaded
             }
         });
+    }
+    private List<Float> getIdVecFromSP(){
+        SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        String savedIdVectorJson = sharedPreferences.getString("idVector", null);
+
+        if (savedIdVectorJson != null) {
+            // Deserialize the idVector list from JSON
+            Gson gson = new Gson();
+            List<Float> savedIdVector = gson.fromJson(savedIdVectorJson, new TypeToken<List<Float>>() {
+            }.getType());
+            System.out.println("Saved idVector in camera getidvec: " + savedIdVector);
+            return savedIdVector;
+        }
+        return null;
+    }
+    private void printSavedUserData() {
+        System.out.println("in printSavedUserData in camera");
+        SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        String savedUserJson = sharedPreferences.getString("user", null);
+        String savedIdVectorJson = sharedPreferences.getString("idVector", null);
+
+        if (savedIdVectorJson != null) {
+            // Deserialize the idVector list from JSON
+            Gson gson = new Gson();
+            List<Float> savedIdVector = gson.fromJson(savedIdVectorJson, new TypeToken<List<Float>>() {}.getType());
+            System.out.println("Saved idVector in cameraa: " + savedIdVector);
+        }
+
+        if (savedUserJson != null) {
+            // Deserialize the User object from JSON (or any other format)
+            User savedUser = deserializeUser(savedUserJson);
+
+            if (savedUser != null) {
+                // Log the saved user information
+                System.out.println("SavedUserData First Name: " + savedUser.getFirstName());
+                System.out.println("SavedUserData Last Name: " + savedUser.getLastName());
+                System.out.println("SavedUserData Email: " + savedUser.getEmail());
+                System.out.println("SavedUserData Phone: " + savedUser.getPhone());
+                System.out.println("SavedUserData isRegistered: " + savedUser.isRegistered());
+                System.out.println("SavedUserData idVector: " + savedUser.getIdVector());
+            }
+        } else {
+            // User data not found in SharedPreferences
+            System.out.println("SavedUserData User data not found.");
+        }
     }
 
 
